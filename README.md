@@ -1,4 +1,4 @@
-# DEX
+# DEX - Dezentralized Exchange
 
 A truly decentralized exchange allowing users to swap ERC20 tokens and MATIC.
 
