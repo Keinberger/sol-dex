@@ -1,0 +1,12 @@
+{
+    "mumbai": {
+        "DEX": {
+            "address": "0xaA2266c8919DFA2d1DEF292866DD60f147705251"
+        }
+    },
+    "matic": {
+        "DEX": {
+            "address": "0x727ecCD76765edd99f9D36f9E5Bcc571C6D0E5e4"
+        }
+    }
+}

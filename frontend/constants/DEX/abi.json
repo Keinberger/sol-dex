@@ -1,0 +1,287 @@
+[
+    {
+        "type": "event",
+        "anonymous": false,
+        "name": "AdminChanged",
+        "inputs": [
+            { "type": "address", "name": "previousAdmin", "indexed": false },
+            { "type": "address", "name": "newAdmin", "indexed": false }
+        ]
+    },
+    {
+        "type": "event",
+        "anonymous": false,
+        "name": "BeaconUpgraded",
+        "inputs": [{ "type": "address", "name": "beacon", "indexed": true }]
+    },
+    {
+        "type": "event",
+        "anonymous": false,
+        "name": "Upgraded",
+        "inputs": [{ "type": "address", "name": "implementation", "indexed": true }]
+    },
+    {
+        "type": "function",
+        "name": "admin",
+        "constant": false,
+        "payable": false,
+        "gas": 29000000,
+        "inputs": [],
+        "outputs": [{ "type": "address", "name": "admin_" }]
+    },
+    {
+        "type": "function",
+        "name": "changeAdmin",
+        "constant": false,
+        "payable": false,
+        "gas": 29000000,
+        "inputs": [{ "type": "address", "name": "newAdmin" }],
+        "outputs": []
+    },
+    {
+        "type": "function",
+        "name": "implementation",
+        "constant": false,
+        "payable": false,
+        "gas": 29000000,
+        "inputs": [],
+        "outputs": [{ "type": "address", "name": "implementation_" }]
+    },
+    {
+        "type": "function",
+        "name": "upgradeTo",
+        "constant": false,
+        "payable": false,
+        "gas": 29000000,
+        "inputs": [{ "type": "address", "name": "newImplementation" }],
+        "outputs": []
+    },
+    {
+        "type": "function",
+        "name": "upgradeToAndCall",
+        "constant": false,
+        "stateMutability": "payable",
+        "payable": true,
+        "gas": 29000000,
+        "inputs": [
+            { "type": "address", "name": "newImplementation" },
+            { "type": "bytes", "name": "data" }
+        ],
+        "outputs": []
+    },
+    {
+        "type": "error",
+        "name": "DEX__LiquidityPoolIsActive",
+        "inputs": [{ "type": "address", "name": "liquidityPoolAddress" }]
+    },
+    {
+        "type": "error",
+        "name": "DEX__LiquidityPoolNotActive",
+        "inputs": [{ "type": "address", "name": "liquidityPoolAddress" }]
+    },
+    { "type": "error", "name": "DEX__StateIs", "inputs": [{ "type": "uint8", "name": "state" }] },
+    {
+        "type": "error",
+        "name": "DEX__StateIsNot",
+        "inputs": [{ "type": "uint8", "name": "state" }]
+    },
+    { "type": "error", "name": "DEX__TokenAddressesOfTokenLiquidityPoolMatching", "inputs": [] },
+    {
+        "type": "error",
+        "name": "DEX__TokenApprovalFailed",
+        "inputs": [{ "type": "address", "name": "tokenAddress" }]
+    },
+    {
+        "type": "error",
+        "name": "DEX__TokenTransferFailed",
+        "inputs": [{ "type": "address", "name": "tokenAddress" }]
+    },
+    {
+        "type": "event",
+        "anonymous": false,
+        "name": "Initialized",
+        "inputs": [{ "type": "uint8", "name": "version", "indexed": false }]
+    },
+    {
+        "type": "event",
+        "anonymous": false,
+        "name": "LiquidityPoolActivated",
+        "inputs": [{ "type": "address", "name": "liquidityPoolAddress", "indexed": false }]
+    },
+    {
+        "type": "event",
+        "anonymous": false,
+        "name": "LiquidityPoolAdded",
+        "inputs": [
+            { "type": "address", "name": "liquidityPoolAddress", "indexed": false },
+            { "type": "uint8", "name": "liquidityPoolKind", "indexed": false }
+        ]
+    },
+    {
+        "type": "event",
+        "anonymous": false,
+        "name": "LiquidityPoolRemoved",
+        "inputs": [{ "type": "address", "name": "liquidityPoolAddress", "indexed": false }]
+    },
+    {
+        "type": "event",
+        "anonymous": false,
+        "name": "OwnershipTransferred",
+        "inputs": [
+            { "type": "address", "name": "previousOwner", "indexed": true },
+            { "type": "address", "name": "newOwner", "indexed": true }
+        ]
+    },
+    {
+        "type": "event",
+        "anonymous": false,
+        "name": "StateUpdated",
+        "inputs": [{ "type": "uint8", "name": "newState", "indexed": false }]
+    },
+    {
+        "type": "function",
+        "name": "activateLiquidityPool",
+        "constant": false,
+        "payable": false,
+        "gas": 29000000,
+        "inputs": [{ "type": "address", "name": "liquidityPoolAddress" }],
+        "outputs": []
+    },
+    {
+        "type": "function",
+        "name": "addNativeLiquidityPool",
+        "constant": false,
+        "stateMutability": "payable",
+        "payable": true,
+        "gas": 29000000,
+        "inputs": [
+            { "type": "address", "name": "tokenAddress" },
+            { "type": "uint256", "name": "swapFee" },
+            { "type": "uint256", "name": "tokenDeposit" }
+        ],
+        "outputs": []
+    },
+    {
+        "type": "function",
+        "name": "addTokenLiquidityPool",
+        "constant": false,
+        "payable": false,
+        "gas": 29000000,
+        "inputs": [
+            { "type": "address", "name": "xAddress" },
+            { "type": "address", "name": "yAddress" },
+            { "type": "uint256", "name": "swapFee" },
+            { "type": "uint256", "name": "xDeposit" },
+            { "type": "uint256", "name": "yDeposit" }
+        ],
+        "outputs": []
+    },
+    {
+        "type": "function",
+        "name": "getState",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "gas": 29000000,
+        "inputs": [],
+        "outputs": [{ "type": "uint8" }]
+    },
+    {
+        "type": "function",
+        "name": "getStatus",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "gas": 29000000,
+        "inputs": [{ "type": "address", "name": "liquidityPoolAddress" }],
+        "outputs": [{ "type": "bool" }]
+    },
+    {
+        "type": "function",
+        "name": "getVersion",
+        "constant": true,
+        "stateMutability": "pure",
+        "payable": false,
+        "gas": 29000000,
+        "inputs": [],
+        "outputs": [{ "type": "uint256" }]
+    },
+    {
+        "type": "function",
+        "name": "initialize",
+        "constant": false,
+        "payable": false,
+        "gas": 29000000,
+        "inputs": [],
+        "outputs": []
+    },
+    {
+        "type": "function",
+        "name": "owner",
+        "constant": true,
+        "stateMutability": "view",
+        "payable": false,
+        "gas": 29000000,
+        "inputs": [],
+        "outputs": [{ "type": "address" }]
+    },
+    {
+        "type": "function",
+        "name": "removeLiquidityPool",
+        "constant": false,
+        "payable": false,
+        "gas": 29000000,
+        "inputs": [{ "type": "address", "name": "liquidityPoolAddress" }],
+        "outputs": []
+    },
+    {
+        "type": "function",
+        "name": "renounceOwnership",
+        "constant": false,
+        "payable": false,
+        "gas": 29000000,
+        "inputs": [],
+        "outputs": []
+    },
+    {
+        "type": "function",
+        "name": "setState",
+        "constant": false,
+        "payable": false,
+        "gas": 29000000,
+        "inputs": [{ "type": "uint8", "name": "newState" }],
+        "outputs": []
+    },
+    {
+        "type": "function",
+        "name": "swapAt",
+        "constant": false,
+        "stateMutability": "payable",
+        "payable": true,
+        "gas": 29000000,
+        "inputs": [
+            { "type": "address", "name": "liquidityPoolAddress" },
+            { "type": "uint256", "name": "tokenAmount" }
+        ],
+        "outputs": []
+    },
+    {
+        "type": "function",
+        "name": "transferOwnership",
+        "constant": false,
+        "payable": false,
+        "gas": 29000000,
+        "inputs": [{ "type": "address", "name": "newOwner" }],
+        "outputs": []
+    },
+    {
+        "type": "constructor",
+        "stateMutability": "payable",
+        "payable": true,
+        "inputs": [
+            { "type": "address", "name": "_logic" },
+            { "type": "address", "name": "admin_" },
+            { "type": "bytes", "name": "_data" }
+        ]
+    }
+]

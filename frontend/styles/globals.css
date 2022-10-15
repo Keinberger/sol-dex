@@ -1,0 +1,99 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+}
+
+body {
+    @apply bg-zinc-900;
+}
+
+.hamburger {
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    transition: all 0.25s;
+    position: relative;
+}
+
+.hamburger-top,
+.hamburger-middle,
+.hamburger-bottom {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 24px;
+    height: 2px;
+    transform: rotate(0);
+    transition: all 0.5s;
+    @apply bg-white;
+}
+
+.hamburger-middle {
+    transform: translateY(7px);
+}
+
+.hamburger-bottom {
+    transform: translateY(14px);
+}
+
+.open {
+    transform: rotate(90deg);
+    transform: translateY(0px);
+}
+
+.open .hamburger-top {
+    transform: rotate(45deg) translateY(6px) translate(6px);
+}
+
+.open .hamburger-bottom {
+    transform: rotate(-45deg) translateY(6px) translate(-6px);
+}
+
+.open .hamburger-middle {
+    display: none;
+}
+
+.dropdown {
+    @apply px-1 py-1 space-y-1 flex flex-col right-5 absolute items-center text-base mt-20 bg-black rounded-xl w-auto top-5 drop-shadow-lg transition-all opacity-0;
+}
+
+.active {
+    @apply flex opacity-100;
+}
+
+.menuButton {
+    @apply px-3 py-1 text-gray-400 hover:text-gray-200 rounded-xl transition ease-in-out duration-300;
+}
+
+.positionManageButton {
+    @apply border rounded-lg text-slate-200 text-xs sm:text-sm py-1 px-2 focus:border transition;
+}
+
+.newPositionSelect {
+    @apply min-w-[140px] md:min-w-[160px] lg:min-w-[200px] text-left bg-zinc-800 border border-zinc-700 
+    rounded-xl text-slate-200 font-mono text-sm sm:text-base md:text-xl px-5 py-2 sm:py-3 focus:outline-none 
+  focus:border-zinc-900 focus:border cursor-pointer;
+}
+
+.defaultInputSelect {
+    @apply w-auto text-left bg-zinc-800 border border-zinc-700
+    rounded-l-xl text-slate-200 font-mono text-xs sm:text-sm md:text-base px-1 sm:px-2 md:px-5 py-1 sm:py-2 focus:outline-none
+  focus:border-zinc-600 focus:border;
+}
+
+.defaultInput {
+    @apply w-full bg-zinc-800 border border-zinc-700 rounded-r-xl
+    text-slate-200 font-mono text-base sm:text-lg md:text-2xl px-1 sm:px-2 md:px-5 py-1 sm:py-2 focus:outline-none
+    focus:border-zinc-600 focus:border;
+}
+
+.popOutHover {
+    @apply ease-in-out delay-150 disabled:hover:translate-y-0 disabled:hover:scale-100 hover:-translate-y-1 hover:scale-110 duration-300;
+}

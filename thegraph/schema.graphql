@@ -1,0 +1,23 @@
+enum LiquidityPoolKind {
+    NLP
+    TLP
+}
+
+type LiquidityPool @entity {
+    id: Bytes! #ID
+    address: Bytes!
+    kind: LiquidityPoolKind!
+    active: Boolean!
+}
+
+type LPPosition @entity {
+    id: ID!
+    provider: Bytes!
+    lpAddress: Bytes!
+    liquidityAmount: BigInt!
+    xDeposit: BigInt!
+    yDeposit: BigInt!
+    xWithdrawn: BigInt!
+    yWithdrawn: BigInt!
+    closed: Boolean!
+}

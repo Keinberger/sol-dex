@@ -1,0 +1,366 @@
+[
+    {
+        "inputs": [],
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "liquidityPoolAddress",
+                "type": "address"
+            }
+        ],
+        "name": "DEX__LiquidityPoolIsActive",
+        "type": "error"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "liquidityPoolAddress",
+                "type": "address"
+            }
+        ],
+        "name": "DEX__LiquidityPoolNotActive",
+        "type": "error"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint8",
+                "name": "state",
+                "type": "uint8"
+            }
+        ],
+        "name": "DEX__StateIs",
+        "type": "error"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint8",
+                "name": "state",
+                "type": "uint8"
+            }
+        ],
+        "name": "DEX__StateIsNot",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "DEX__TokenAddressesOfTokenLiquidityPoolMatching",
+        "type": "error"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "tokenAddress",
+                "type": "address"
+            }
+        ],
+        "name": "DEX__TokenApprovalFailed",
+        "type": "error"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "tokenAddress",
+                "type": "address"
+            }
+        ],
+        "name": "DEX__TokenTransferFailed",
+        "type": "error"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "uint8",
+                "name": "version",
+                "type": "uint8"
+            }
+        ],
+        "name": "Initialized",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "liquidityPoolAddress",
+                "type": "address"
+            }
+        ],
+        "name": "LiquidityPoolActivated",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "liquidityPoolAddress",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "enum ILiquidityPool.Kind",
+                "name": "liquidityPoolKind",
+                "type": "uint8"
+            }
+        ],
+        "name": "LiquidityPoolAdded",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "liquidityPoolAddress",
+                "type": "address"
+            }
+        ],
+        "name": "LiquidityPoolRemoved",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "previousOwner",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "newOwner",
+                "type": "address"
+            }
+        ],
+        "name": "OwnershipTransferred",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "enum DEX.State",
+                "name": "newState",
+                "type": "uint8"
+            }
+        ],
+        "name": "StateUpdated",
+        "type": "event"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "liquidityPoolAddress",
+                "type": "address"
+            }
+        ],
+        "name": "activateLiquidityPool",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "tokenAddress",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "swapFee",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "tokenDeposit",
+                "type": "uint256"
+            }
+        ],
+        "name": "addNativeLiquidityPool",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "xAddress",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "yAddress",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "swapFee",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "xDeposit",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "yDeposit",
+                "type": "uint256"
+            }
+        ],
+        "name": "addTokenLiquidityPool",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getState",
+        "outputs": [
+            {
+                "internalType": "enum DEX.State",
+                "name": "",
+                "type": "uint8"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "liquidityPoolAddress",
+                "type": "address"
+            }
+        ],
+        "name": "getStatus",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getVersion",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "pure",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "initialize",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "owner",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "liquidityPoolAddress",
+                "type": "address"
+            }
+        ],
+        "name": "removeLiquidityPool",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "renounceOwnership",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "enum DEX.State",
+                "name": "newState",
+                "type": "uint8"
+            }
+        ],
+        "name": "setState",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "liquidityPoolAddress",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "tokenAmount",
+                "type": "uint256"
+            }
+        ],
+        "name": "swapAt",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "newOwner",
+                "type": "address"
+            }
+        ],
+        "name": "transferOwnership",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }
+]
