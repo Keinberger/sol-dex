@@ -201,7 +201,7 @@ export default function Exchange({ tokenMapping }) {
                                 <div className="w-full">
                                     <button
                                         className={`popOutHover w-full bg-emerald-700 border border-emerald-700 rounded-xl
-                                        text-emerald-300 text-sm sm:text-base md:text-lg py-3 focus:border focus:border-emerald-600
+                                        text-emerald-300 text-base md:text-lg py-3 focus:border focus:border-emerald-600
                                         hover:bg-emerald-600 transition disabled:cursor-not-allowed 
                                         disabled:hover:bg-emerald-700
                                         `}

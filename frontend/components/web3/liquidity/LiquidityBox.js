@@ -47,11 +47,11 @@ export default function LiquidityBox({ processedPositions, tokenMapping }) {
                             ))
                         ) : (
                             <div
-                                className={`mx-auto w-[200px] sm:w-[250px] md:w-[450px]
+                                className={`mx-auto w-[230px] sm:w-[250px] md:w-[450px]
                             lg:w-[550px] rounded-xl drop-shadow-xl bg-zinc-900 my-10`}
                             >
-                                <div className="flex py-16">
-                                    <h3 className="text-zinc-500 text-center mx-10 md:mx-auto text-sm sm:text-base md:text-lg">
+                                <div className="flex py-8 sm:py-16">
+                                    <h3 className="text-zinc-500 text-center mx-10 md:mx-auto text-base md:text-lg">
                                         Any active positions will appear here
                                     </h3>
                                 </div>

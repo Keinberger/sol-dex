@@ -13,10 +13,10 @@ export default function InputForm({
     margins,
 }) {
     return (
-        <div className={`flex justify-center ${margins} mx-2 sm:mx-8 lg:mx-12 h-12`}>
+        <div className={`flex justify-center ${margins} mx-0 sm:mx-8 lg:mx-12 h-12`}>
             <input
                 className={`w-[70%] bg-zinc-900 border border-zinc-900 rounded-l-xl
-                text-slate-200 font-mono text-lg sm:text-xl md:text-2xl px-3 md:px-5 focus:outline-none 
+                text-slate-200 font-mono text-xl sm:text-xl md:text-2xl px-3 md:px-5 focus:outline-none 
                 focus:border-zinc-700 focus:border`}
                 onChange={(props) => {
                     setAmount(props.target.value)
@@ -32,7 +32,7 @@ export default function InputForm({
                 name={selectName}
                 id={selectId}
                 className={`w-auto text-center bg-zinc-900 border border-zinc-900 rounded-r-xl
-                text-slate-200 font-mono text-xs sm:text-sm px-3 md:px-5 focus:outline-none 
+                text-slate-200 font-mono text-sm sm:text-sm px-3 md:px-5 focus:outline-none 
                 focus:border-zinc-700 focus:border`}
                 onChange={(props) => {
                     setTokenSelected(props.target.value)
