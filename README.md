@@ -32,7 +32,7 @@ Swapping blockchain items like ERC-20 tokens is one of the most popular use case
 
 DEXs provide a trustless third-party platform for these kinds of trades. Taking into account the concept of liquidity pools, decentralized exchanges are able to utilize liquidity without the need of a centralized party, while also letting liquidity providers accumulate interest on their deposits over time.
 
-This demo project gives an insight into how the most popular Defi use case can be implemented. The project provides governance of the exchange through a democratized on-chain voting system, liquidity pools enabling users to earn interest and bullet-proof mathematics providing an automated market maker for fair trade.
+This demo project gives an insight into how the most popular DeFi use case can be implemented. The project provides governance of the exchange through a democratized on-chain voting system, liquidity pools enabling users to earn interest and bullet-proof mathematics providing an automated market maker for fair trade.
 
 ## User Interfaces
 
