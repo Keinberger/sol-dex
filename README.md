@@ -171,13 +171,13 @@ The repo provides several scripts for interacting with the DEX, liquidity pools 
 The scripts uses the `helper-hardhat-config.js` for input values. In order to run these scripts, you have
 to edit the `scriptsConfig` section and the corresponding `governance`, `dex`, `fundTimelock`, `nlp`, `tlp` objects accordingly.
 
-<p align="right">(<a href="#governed-nft-marketplace">back to top</a>)</p>
+<p align="right">(<a href="#dex">back to top</a>)</p>
 
 ## License
 
 Distributed under the GPL-3.0 License. See `LICENSE` for more information.
 
-<p align="right">(<a href="#governed-nft-marketplace">back to top</a>)</p>
+<p align="right">(<a href="#dex">back to top</a>)</p>
 
 ## Contact
 
@@ -187,4 +187,4 @@ Project Link: [https://github.com/keinberger/sol-dex](https://github.com/keinber
 
 Project Webpage: [dex.philipp.keinberger.com](https://dex.philipp.keinberger.com)
 
-<p align="right">(<a href="#governed-nft-marketplace">back to top</a>)</p>
+<p align="right">(<a href="#dex">back to top</a>)</p>
