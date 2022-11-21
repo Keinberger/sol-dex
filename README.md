@@ -2,7 +2,7 @@
 
 A truly decentralized exchange allowing users to swap ERC20 tokens and MATIC.
 
-[![DEX][github/frontpage.png]](https://dex.philipp.keinberger.com)
+[![DEX](github/frontpage.png)](https://dex.philipp.keinberger.com)
 
 - [DEX - Dezentralized Exchange](#dex---dezentralized-exchange)
   - [About](#about)
