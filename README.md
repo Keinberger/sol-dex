@@ -2,15 +2,13 @@
 
 A truly decentralized exchange allowing users to swap ERC20 tokens and MATIC.
 
-[dex.philipp.keinberger.com](https://dex.philipp.keinberger.com)
+[![DEX][github/frontpage.png]](https://dex.philipp.keinberger.com)
 
-![DEX](github/frontpage.png)
-
-- [DEX](#dex)
+- [DEX - Dezentralized Exchange](#dex---dezentralized-exchange)
   - [About](#about)
   - [User Interfaces](#user-interfaces)
   - [Contracts](#contracts)
-    - [DEX](#dex-1)
+    - [DEX](#dex)
     - [ILiquidityPool (Interface)](#iliquiditypool-interface)
     - [NativeLiquidityPool](#nativeliquiditypool)
     - [TokenLiquidityPool](#tokenliquiditypool)

@@ -166,7 +166,7 @@ contract NativeLiquidityPool is Ownable, Initializable, ILiquidityPool {
         if (!i_token.transfer(msg.sender, yEligible))
             revert NativeLiquidityPool__TokenTransferFailed();
 
-        (bool successfulTransfer, ) = msg.sender.call{value: xEligible}("");
+        (bool successfulTransfer, ) = payable(msg.sender).call{value: xEligible}("");
         if (!successfulTransfer) revert NativeLiquidityPool__NativeTransferFailed();
 
         emit LiquidityRemoved(msg.sender, liquidityAmount, xEligible, yEligible);
@@ -200,19 +200,15 @@ contract NativeLiquidityPool is Ownable, Initializable, ILiquidityPool {
     function swapFrom(address from, uint256 tokenAmount) external payable override {
         Allowance memory l_allowance = s_allowanceOf[from][msg.sender];
 
-        if (l_allowance.direction == SwapDirection.xToY) {
-            if (msg.value > l_allowance.amount) revert NativeLiquidityPool__NotEnoughAllowance();
+        uint256 swapAmount;
+        if (l_allowance.direction == SwapDirection.xToY) swapAmount = msg.value;
+        else swapAmount = tokenAmount;
 
-            s_allowanceOf[from][msg.sender].amount -= msg.value;
+        if (swapAmount > l_allowance.amount) revert NativeLiquidityPool__NotEnoughAllowance();
+        s_allowanceOf[from][msg.sender].amount -= swapAmount;
 
-            _swapXtoY(from, msg.value);
-        } else if (l_allowance.direction == SwapDirection.yToX) {
-            if (tokenAmount > l_allowance.amount) revert NativeLiquidityPool__NotEnoughAllowance();
-
-            s_allowanceOf[from][msg.sender].amount -= tokenAmount;
-
-            _swapYtoX(from, tokenAmount);
-        }
+        if (l_allowance.direction == SwapDirection.xToY) _swapXtoY(from, swapAmount);
+        else _swapYtoX(from, swapAmount);
     }
 
     /**
