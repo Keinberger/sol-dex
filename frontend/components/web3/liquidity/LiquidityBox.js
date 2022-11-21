@@ -1,11 +1,12 @@
 import { useState } from "react"
-import { useMoralis } from "react-moralis"
+import { useAddress } from "@thirdweb-dev/react"
 
 import NewPosition from "./NewPosition"
 import Position from "./Position"
 
 export default function LiquidityBox({ processedPositions, tokenMapping }) {
-    const { isWeb3Enabled } = useMoralis()
+    const userAddress = useAddress()
+    const isWeb3Enabled = userAddress !== undefined
     const [newPositionVisibility, setNewPositionVisibility] = useState(false)
     const showNewPosition = () => setNewPositionVisibility(true)
     const hideNewPosition = () => setNewPositionVisibility(false)

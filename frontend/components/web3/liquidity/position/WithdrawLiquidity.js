@@ -4,8 +4,9 @@ import { ethers } from "ethers"
 
 import LiquidityForm from "./liquidity/LiquidityForm"
 
-import { useWithdrawLiquidity as useWithdrawLiquidityNLP } from "../../../../hooks/nlp/web3"
-import { useWithdrawLiquidity as useWithdrawLiquidityTLP } from "../../../../hooks/tlp/web3"
+import { useWithdrawLiquidity as useWithdrawLiquidityNLP } from "../../../../hooks/nlp.js"
+import { getContract as getNLPContract } from "../../../../hooks/nlp.js"
+import { useWithdrawLiquidity as useWithdrawLiquidityTLP } from "../../../../hooks/tlp.js"
 
 import config from "../../../../constants/config"
 import { trimNumber } from "../../../../helpers/helpers"
@@ -25,39 +26,45 @@ export default function WithdrawLiquidity({ isVisible, position, conversionRate 
     const liquidityToWithdraw = String(liquidityPercentage * position.liquidityAmount)
 
     const sendWithdrawLiquidity = isNLP
-        ? useWithdrawLiquidityNLP(position.lpAddress, liquidityToWithdraw)
-        : useWithdrawLiquidityTLP(position.lpAddress, liquidityToWithdraw)
+        ? useWithdrawLiquidityNLP(position.lpAddress)
+        : useWithdrawLiquidityTLP(position.lpAddress)
 
-    const handleTxError = (e) => {
+    const handleTxError = () => {
         setSendingTx(false)
-        if (e.code == 4001) return
-
-        console.error(e)
         setCookie("latestMessage", config.tx.error)
     }
 
     const handleTxSuccess = (tx) => {
+        setSendingTx(false)
         setCookie("latestMessage", {
-            text: `Transaction (${tx.hash}) complete!`,
+            text: `Transaction (${tx.transactionHash}) complete!`,
             kind: "success",
         })
     }
 
-    const withdrawLiquidity = async () => {
+    const withdrawLiquidity = () => {
         setSendingTx(true)
-        await sendWithdrawLiquidity({
-            onComplete: () => {},
-            onSuccess: async (withdrawTx) => {
-                setCookie("latestMessage", config.tx.posted)
-                await withdrawTx.wait(config.tx.confirmations)
+        switch (isNLP) {
+            case true:
+                sendWithdrawLiquidity([liquidityToWithdraw], {
+                    onSuccess: (data) => {
+                        handleTxSuccess(data)
+                        window.location.reload()
+                    },
+                    onError: handleTxError,
+                })
+                break
+            case false:
+                sendWithdrawLiquidity([liquidityToWithdraw], {
+                    onSuccess: (data) => {
+                        handleTxSuccess(data)
+                        window.location.reload()
+                    },
+                })
+                break
+        }
 
-                handleTxSuccess(withdrawTx, setCookie)
-                setSendingTx(false)
-
-                window.location.reload(true)
-            },
-            onError: handleTxError,
-        })
+        // send withdraw liquidity
     }
 
     return (

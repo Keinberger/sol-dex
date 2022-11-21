@@ -1,12 +1,11 @@
-import { useMoralis } from "react-moralis"
+import { useAddress } from "@thirdweb-dev/react"
 import { useQuery, gql } from "@apollo/client"
 
 import ContentManager from "./ContentManager"
 
 export default function QueryManager() {
-    const { account } = useMoralis()
+    const userAddress = useAddress()
 
-    // define queries here
     const GET_LIQUIDITY_POOLS = gql`
         {
             liquidityPools(where: { active: true }) {
@@ -15,12 +14,11 @@ export default function QueryManager() {
             }
         }
     `
-
     const GET_LP_POSITIONS = gql`
         {
             lppositions(
                 where: {
-                    provider: "${account}"
+                    provider: "${userAddress}"
                     closed: false
                 }
             ) {
@@ -34,13 +32,9 @@ export default function QueryManager() {
         }
     `
 
-    // execute queries here
-
     const { data: liquidityPoolsData, loading: liquidityPoolsLoading } =
         useQuery(GET_LIQUIDITY_POOLS)
     const { data: lpPositionsData, loading: lpPositionsLoading } = useQuery(GET_LP_POSITIONS)
-
-    // pass query results on to site components
 
     return (
         !liquidityPoolsLoading &&

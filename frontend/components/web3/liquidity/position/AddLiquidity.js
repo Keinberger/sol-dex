@@ -1,50 +1,42 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useCookies } from "react-cookie"
-import { useMoralis } from "react-moralis"
+import { useSDK } from "@thirdweb-dev/react"
 import { ethers } from "ethers"
 
 import LiquidityForm from "./liquidity/LiquidityForm"
-import { useApprove } from "../../../../hooks/erc20/web3"
-import { useProvideLiquidity as useProvideLiquidityNLP } from "../../../../hooks/nlp/web3"
-import { useProvideLiquidity as useProvideLiquidityTLP } from "../../../../hooks/tlp/web3"
-import { useRetrieveNativeBalance } from "../../../../hooks/native/api"
+import { useApprove } from "../../../../hooks/erc20.js"
+import { getContract as getNLPContract } from "../../../../hooks/nlp.js"
+import { useProvideLiquidity as useProvideLiquidityTLP } from "../../../../hooks/tlp.js"
 
 import config from "../../../../constants/config"
+import { convertToWei } from "../../../../helpers/helpers"
 
 export default function AddLiquidity({ isVisible, position, conversionRate }) {
-    const { account } = useMoralis()
+    const sdk = useSDK()
+    const [xNativeBalance, setXNativeBalance] = useState("0")
     const [cookies, setCookie] = useCookies(["latestMessage"])
     const [sendingTx, setSendingTx] = useState(false)
     const [xAmount, setXAmount] = useState("")
     const [yAmount, setYAmount] = useState("")
 
     const isNLP = position.lpKind == "0"
-    const safeXAmount = xAmount ? xAmount : "1"
-    const safeYAmount = yAmount ? yAmount : "1"
-    const xNativeBalance = useRetrieveNativeBalance(account)
+    const safeXAmount = xAmount ? convertToWei(xAmount) : "1"
+    const safeYAmount = yAmount ? convertToWei(yAmount) : "1"
 
-    const sendApproveX =
-        !isNLP && useApprove(position.xTokenAddress, position.lpAddress, safeXAmount)
-    const sendApproveY = useApprove(
-        isNLP ? position.tokenAddress : position.yTokenAddress,
-        position.lpAddress,
-        safeYAmount
-    )
-    const sendProvideLiquidity = isNLP
-        ? useProvideLiquidityNLP(position.lpAddress, safeXAmount)
-        : useProvideLiquidityTLP(position.lpAddress, safeYAmount)
+    const sendApproveX = useApprove(position.xTokenAddress)
+    const sendApproveY = useApprove(isNLP ? position.tokenAddress : position.yTokenAddress)
+    const nlpContract = isNLP && getNLPContract(position.lpAddress)
+    const sendProvideLiquidityTLP = !isNLP && useProvideLiquidityTLP(position.lpAddress)
 
-    const handleTxError = (e) => {
+    const handleTxError = () => {
         setSendingTx(false)
-        if (e.code == 4001) return
-
-        console.error(e)
         setCookie("latestMessage", config.tx.error)
     }
 
     const handleTxSuccess = (tx) => {
+        setSendingTx(false)
         setCookie("latestMessage", {
-            text: `Transaction (${tx.hash}) complete!`,
+            text: `Transaction (${tx.transactionHash}) complete!`,
             kind: "success",
         })
     }
@@ -62,55 +54,34 @@ export default function AddLiquidity({ isVisible, position, conversionRate }) {
                     break
                 }
 
+                console.log(formattedNativeBalance, xAmount)
+
                 setSendingTx(true)
-                await sendApproveY({
-                    onComplete: () => {},
-                    onSuccess: async (approveTx) => {
-                        setCookie("latestMessage", config.tx.posted)
-                        await approveTx.wait(config.tx.confirmations)
-
-                        // send provideLiquidity
-                        await sendProvideLiquidity({
-                            onComplete: () => {},
-                            onSuccess: async (provideTx) => {
-                                await provideTx.wait(config.tx.confirmations)
-
-                                handleTxSuccess(provideTx, setCookie)
-                                setSendingTx(false)
-
-                                window.location.reload(true)
-                            },
-                            onError: handleTxError,
-                        })
+                sendApproveY([position.lpAddress, safeYAmount], {
+                    onSuccess: async () => {
+                        try {
+                            const tx = await nlpContract.call("provideLiquidity", {
+                                value: safeXAmount,
+                            })
+                            const receipt = tx.receipt
+                            handleTxSuccess(receipt)
+                            window.location.reload()
+                        } catch {
+                            handleTxError()
+                        }
                     },
                     onError: handleTxError,
                 })
                 break
             case false:
                 setSendingTx(true)
-                await sendApproveX({
-                    onComplete: () => {},
-                    onSuccess: async (approveXTx) => {
-                        setCookie("latestMessage", config.tx.posted)
-                        await approveXTx.wait(config.tx.confirmations)
-
-                        // send approve Y
-                        await sendApproveY({
-                            onComplete: () => {},
-                            onSuccess: async (approveYTx) => {
-                                setCookie("latestMessage", config.tx.posted)
-                                await approveYTx.wait(config.tx.confirmations)
-
-                                // send provide Liquidity
-                                await sendProvideLiquidity({
-                                    onComplete: () => {},
-                                    onSuccess: async (provideTx) => {
-                                        setCookie("latestMessage", config.tx.posted)
-                                        await provideTx.wait(config.tx.confirmations)
-
-                                        handleTxSuccess(provideTx, useCookies)
-                                        setSendingTx(false)
-
+                sendApproveX([position.lpAddress, safeXAmount], {
+                    onSuccess: () => {
+                        sendApproveY([position.lpAddress, safeYAmount], {
+                            onSuccess: () => {
+                                sendProvideLiquidityTLP([safeXAmount, safeYAmount], {
+                                    onSuccess: (data) => {
+                                        handleTxSuccess(data)
                                         window.location.reload(true)
                                     },
                                     onError: handleTxError,
@@ -124,6 +95,10 @@ export default function AddLiquidity({ isVisible, position, conversionRate }) {
                 break
         }
     }
+
+    useEffect(() => {
+        sdk.wallet.balance().then((bal) => setXNativeBalance(bal.value.toString()))
+    }, [])
 
     return (
         <LiquidityForm

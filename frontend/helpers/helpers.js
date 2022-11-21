@@ -21,6 +21,18 @@ export function trimNumber(num, decimals) {
         return String(Number(num).toFixed(numTillChar))
     }
 
+    // rounding up
+    let lastIndex = formattedNum.length - 1
+    if (formattedNum[lastIndex] == "9") {
+        for (let i = lastIndex; i < formattedNum.length; i--) {
+            if (formattedNum[i] == "9") formattedNum = formattedNum.slice(0, -1)
+            else break
+        }
+    }
+    let lastCharacter = formattedNum[formattedNum.length - 1]
+    formattedNum = formattedNum.slice(0, -1)
+    formattedNum = formattedNum + String(Number(lastCharacter) + 1)
+
     let numDecimals = String(formattedNum).split(".")[1]
     for (let i = numDecimals.length - 1; i > 0; i--) {
         if (numDecimals[i] != "0") break
@@ -34,4 +46,13 @@ export function trimNumber(num, decimals) {
 export function getEthInverse(value) {
     const oneEther = ethers.utils.parseEther("1")
     return ethers.utils.parseEther(oneEther.toString()).div(value).toString()
+}
+
+export function convertToWei(num) {
+    try {
+        const wei = ethers.utils.parseEther(num)
+        return wei.toString()
+    } catch {
+        return "0"
+    }
 }

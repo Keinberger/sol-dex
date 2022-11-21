@@ -11,14 +11,14 @@ import {
     useRetrieveEligibleNative,
     useRetrieveEligibleTokens,
     useRetrieveTokenAmountForDeposit,
-} from "../../../hooks/nlp/web3"
+} from "../../../hooks/nlp.js"
 import {
     useRetrieveXToken,
     useRetrieveYToken,
     useRetrieveEligibleX,
     useRetrieveEligibleY,
     useRetrieveYAmountForDeposit,
-} from "../../../hooks/tlp/web3"
+} from "../../../hooks/tlp.js"
 
 import Symbol from "../Symbol"
 import config from "../../../constants/config"
@@ -45,7 +45,7 @@ export default function Position({ lpPosition }) {
     const oneEther = ethers.utils.parseEther("1")
     let position = {}
     switch (lpPosition.lpKind) {
-        case "0":
+        case 0:
             const tokenAddress = useRetrieveToken(lpPosition.lpAddress)
             const nativeEligible = useRetrieveEligibleNative(
                 lpPosition.lpAddress,
@@ -67,12 +67,12 @@ export default function Position({ lpPosition }) {
             position = {
                 ...lpPosition,
                 tokenAddress,
-                xEligible: nativeEligible,
-                yEligible: tokensEligible,
+                xEligible: nativeEligible ? nativeEligible : "0",
+                yEligible: tokensEligible ? tokensEligible : "0",
                 yAmountForDepositOfOne: formattedTokensAmount,
             }
             break
-        case "1":
+        case 1:
             const xTokenAddress = useRetrieveXToken(lpPosition.lpAddress)
             const yTokenAddress = useRetrieveYToken(lpPosition.lpAddress)
             const xEligible = useRetrieveEligibleX(lpPosition.lpAddress, lpPosition.liquidityAmount)
@@ -96,10 +96,10 @@ export default function Position({ lpPosition }) {
     useEffect(() => {
         let notFinished = false
         switch (lpPosition.lpKind) {
-            case "0":
+            case 0:
                 if (position.tokenAddress == null) notFinished = true
                 break
-            case "1":
+            case 1:
                 if (position.xTokenAddress == null || position.yTokenAddress == null)
                     notFinished = true
                 break

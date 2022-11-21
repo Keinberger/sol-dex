@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useCookies } from "react-cookie"
 import { ethers } from "ethers"
-import { useMoralis } from "react-moralis"
+import { useAddress } from "@thirdweb-dev/react"
 
 import NavBar from "./NavBar"
 import Exchange from "./sites/Exchange"
@@ -13,18 +13,20 @@ import {
     useRetrieveYToken,
     useRetrieveYTokenOutputForSwap,
     useRetrieveYAmountForDeposit,
-} from "../hooks/tlp/api"
+} from "../hooks/tlp.js"
 import {
     useRetrieveToken,
     useRetrieveTokenOutputForSwap,
     useRetrieveTokenAmountForDeposit,
-} from "../hooks/nlp/api"
+} from "../hooks/nlp.js"
 
 import config from "../constants/config"
 import { getEthInverse } from "../helpers/helpers"
 
 export default function ContentManager({ liquidityPools, lpPositions }) {
-    const { isWeb3Enabled } = useMoralis()
+    const userAddress = useAddress()
+    const isWeb3Enabled = userAddress !== undefined
+
     const [content, setContent] = useState(0)
     const [initialized, setInitialized] = useState(false)
     const [cookies, setCookie] = useCookies(["currentSite", "latestMessage"])
@@ -141,9 +143,6 @@ export default function ContentManager({ liquidityPools, lpPositions }) {
     useEffect(() => {
         if (cookies.currentSite == undefined) {
             setCookie("currentSite", "0")
-        }
-        if (cookies.latestMessage == undefined) {
-            // setCookie("latestMessage", { kind: "success", text: "Connect your wallet" })
         }
     }, [])
 

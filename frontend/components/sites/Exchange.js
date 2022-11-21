@@ -1,18 +1,19 @@
 import { useState, useEffect } from "react"
-import { useMoralis } from "react-moralis"
+import { useAddress } from "@thirdweb-dev/react"
 import { useCookies } from "react-cookie"
 import { AiOutlineArrowDown } from "react-icons/ai"
 import { ethers } from "ethers"
 
 import InputForm from "../web3/exchange/InputForm"
 import config from "../../constants/config"
-import { trimNumber } from "../../helpers/helpers"
-import { useSwap } from "../../hooks/lp/web3"
-import { useApprove } from "../../hooks/erc20/web3"
+import { convertToWei, trimNumber } from "../../helpers/helpers"
+import { useSwap } from "../../hooks/lp.js"
+import { useApprove } from "../../hooks/erc20.js"
+import { getContract } from "../../hooks/nlp"
 
 export default function Exchange({ tokenMapping }) {
     const [cookies, setCookie] = useCookies(["latestMessage"])
-    const { isWeb3Enabled } = useMoralis()
+    const isWeb3Enabled = useAddress() !== undefined
     const [sendingTx, setSendingTx] = useState(false)
     const [firstAmount, setFirstAmount] = useState(0)
     const [secondAmount, setSecondAmount] = useState(0)
@@ -44,27 +45,13 @@ export default function Exchange({ tokenMapping }) {
             : 1
     const xToken = currentDirection == 0 ? firstTokenSelected : secondTokenSelected
     const yToken = currentDirection == 0 ? secondTokenSelected : firstTokenSelected
-    const xAmount =
-        currentDirection == 0 ? Number(firstAmount).toString() : Number(secondAmount).toString()
-    const yAmount =
-        currentDirection == 0 ? Number(secondAmount).toString() : Number(firstAmount).toString()
+    const xAmount = currentDirection == 0 ? convertToWei(firstAmount) : convertToWei(secondAmount)
+    const yAmount = currentDirection == 0 ? convertToWei(secondAmount) : convertToWei(firstAmount)
 
-    const sendApproveX = useApprove(xToken, currentLpAddress, xAmount)
-    const sendApproveY = useApprove(yToken, currentLpAddress, yAmount)
-    const sendUseSwap =
-        currentLpKind == 0
-            ? useSwap(
-                  currentLpAddress,
-                  currentDirection == 0 ? 0 : yAmount,
-                  currentDirection == 0 ? xAmount : 0,
-                  currentDirection
-              )
-            : useSwap(
-                  currentLpAddress,
-                  currentDirection == 0 ? xAmount : yAmount,
-                  0,
-                  currentDirection
-              )
+    const sendApproveX = useApprove(xToken)
+    const sendApproveY = useApprove(yToken)
+    const sendSwap = useSwap(currentLpAddress)
+    const nlpContract = getContract(currentLpAddress)
 
     useEffect(() => {
         const firstKey = [...tokenMapping.keys()][0]
@@ -124,17 +111,15 @@ export default function Exchange({ tokenMapping }) {
         setFirstAmount(setAmount)
     }, [secondAmount, secondTokenSelected])
 
-    const handleTxError = (e) => {
+    const handleTxError = () => {
         setSendingTx(false)
-        if (e.code == 4001) return
-
-        console.error(e)
         setCookie("latestMessage", config.tx.error)
     }
 
     const handleTxSuccess = (tx) => {
+        setSendingTx(false)
         setCookie("latestMessage", {
-            text: `Transaction (${tx.hash}) complete!`,
+            text: `Transaction (${tx.transactionHash}) complete!`,
             kind: "success",
         })
     }
@@ -215,148 +200,121 @@ export default function Exchange({ tokenMapping }) {
                                                 case 0:
                                                     switch (currentDirection) {
                                                         case 0:
-                                                            sendUseSwap({
-                                                                onComplete: () => {},
-                                                                onSuccess: async (swapTx) => {
-                                                                    setSendingTx(true)
-                                                                    setCookie(
-                                                                        "latestMessage",
-                                                                        config.tx.posted
-                                                                    )
-                                                                    await swapTx.wait(
-                                                                        config.tx.confirmations
-                                                                    )
-
-                                                                    handleTxSuccess(swapTx)
-                                                                    setSendingTx(false)
-                                                                    window.location.reload(true)
-                                                                },
-                                                                onError: handleTxError,
-                                                            })
+                                                            setSendingTx(true)
+                                                            try {
+                                                                const tx = await nlpContract.call(
+                                                                    "swap",
+                                                                    0,
+                                                                    currentDirection,
+                                                                    {
+                                                                        value: xAmount,
+                                                                    }
+                                                                )
+                                                                const receipt = tx.receipt
+                                                                setSendingTx(false)
+                                                                handleTxSuccess(receipt)
+                                                                window.location.reload()
+                                                            } catch {
+                                                                handleTxError()
+                                                            }
                                                             break Y
                                                         case 1:
-                                                            sendApproveY({
-                                                                onComplete: () => {},
-                                                                onSuccess: async (approveTx) => {
-                                                                    setSendingTx(true)
-                                                                    setCookie(
-                                                                        "latestMessage",
-                                                                        config.tx.posted
-                                                                    )
-                                                                    await approveTx.wait(
-                                                                        config.tx.confirmations
-                                                                    )
-
-                                                                    sendUseSwap({
-                                                                        onComplete: () => {},
-                                                                        onSuccess: async (
-                                                                            swapTx
-                                                                        ) => {
-                                                                            setSendingTx(true)
-                                                                            setCookie(
-                                                                                "latestMessage",
-                                                                                config.tx.posted
-                                                                            )
-                                                                            await swapTx.wait(
-                                                                                config.tx
-                                                                                    .confirmations
-                                                                            )
-
-                                                                            handleTxSuccess(swapTx)
-                                                                            setSendingTx(false)
-                                                                            window.location.reload(
-                                                                                true
-                                                                            )
-                                                                        },
-                                                                        onError: handleTxError,
-                                                                    })
-                                                                },
-                                                                onError: handleTxError,
-                                                            })
+                                                            setSendingTx(true)
+                                                            sendApproveY(
+                                                                [currentLpAddress, yAmount],
+                                                                {
+                                                                    onSuccess: () => {
+                                                                        sendSwap(
+                                                                            [
+                                                                                yAmount,
+                                                                                currentDirection,
+                                                                            ],
+                                                                            {
+                                                                                onSuccess: (
+                                                                                    data
+                                                                                ) => {
+                                                                                    handleTxSuccess(
+                                                                                        data
+                                                                                    )
+                                                                                    window.location.reload(
+                                                                                        true
+                                                                                    )
+                                                                                },
+                                                                                onError:
+                                                                                    handleTxError,
+                                                                            }
+                                                                        )
+                                                                    },
+                                                                    onError: handleTxError,
+                                                                }
+                                                            )
                                                             break Y
                                                     }
                                                     break
                                                 case 1:
                                                     switch (currentDirection) {
                                                         case 0:
-                                                            sendApproveX({
-                                                                onComplete: () => {},
-                                                                onSuccess: async (approveTx) => {
-                                                                    setSendingTx(true)
-                                                                    setCookie(
-                                                                        "latestMessage",
-                                                                        config.tx.posted
-                                                                    )
-                                                                    await approveTx.wait(
-                                                                        config.tx.confirmations
-                                                                    )
-
-                                                                    sendUseSwap({
-                                                                        onComplete: () => {},
-                                                                        onSuccess: async (
-                                                                            swapTx
-                                                                        ) => {
-                                                                            setSendingTx(true)
-                                                                            setCookie(
-                                                                                "latestMessage",
-                                                                                config.tx.posted
-                                                                            )
-                                                                            await swapTx.wait(
-                                                                                config.tx
-                                                                                    .confirmations
-                                                                            )
-
-                                                                            handleTxSuccess(swapTx)
-                                                                            setSendingTx(false)
-                                                                            window.location.reload(
-                                                                                true
-                                                                            )
-                                                                        },
-                                                                        onError: handleTxError,
-                                                                    })
-                                                                },
-                                                                onError: handleTxError,
-                                                            })
+                                                            setSendingTx(true)
+                                                            sendApproveX(
+                                                                [currentLpAddress, xAmount],
+                                                                {
+                                                                    onSuccess: () => {
+                                                                        sendSwap(
+                                                                            [
+                                                                                xAmount,
+                                                                                currentDirection,
+                                                                            ],
+                                                                            {
+                                                                                onSuccess: (
+                                                                                    data
+                                                                                ) => {
+                                                                                    handleTxSuccess(
+                                                                                        data
+                                                                                    )
+                                                                                    window.location.reload(
+                                                                                        true
+                                                                                    )
+                                                                                },
+                                                                                onError:
+                                                                                    handleTxError,
+                                                                            }
+                                                                        )
+                                                                    },
+                                                                    onError: handleTxError,
+                                                                }
+                                                            )
                                                             break Y
                                                         case 1:
-                                                            sendApproveY({
-                                                                onComplete: () => {},
-                                                                onSuccess: async (approveTx) => {
-                                                                    setSendingTx(true)
-                                                                    setCookie(
-                                                                        "latestMessage",
-                                                                        config.tx.posted
-                                                                    )
-                                                                    await approveTx.wait(
-                                                                        config.tx.confirmations
-                                                                    )
+                                                            setSendingTx(true)
+                                                            sendApproveY(
+                                                                [currentLpAddress, yAmount],
+                                                                {
+                                                                    onSuccess: () => {
+                                                                        sendSwap(
+                                                                            [
+                                                                                yAmount,
+                                                                                currentDirection,
+                                                                            ],
+                                                                            {
+                                                                                onSuccess: (
+                                                                                    data
+                                                                                ) => {
+                                                                                    handleTxSuccess(
+                                                                                        data
+                                                                                    )
+                                                                                    window.location.reload(
+                                                                                        true
+                                                                                    )
+                                                                                },
+                                                                                onError:
+                                                                                    handleTxError,
+                                                                            }
+                                                                        )
+                                                                    },
 
-                                                                    sendUseSwap({
-                                                                        onComplete: () => {},
-                                                                        onSuccess: async (
-                                                                            swapTx
-                                                                        ) => {
-                                                                            setSendingTx(true)
-                                                                            setCookie(
-                                                                                "latestMessage",
-                                                                                config.tx.posted
-                                                                            )
-                                                                            await swapTx.wait(
-                                                                                config.tx
-                                                                                    .confirmations
-                                                                            )
-
-                                                                            handleTxSuccess(swapTx)
-                                                                            setSendingTx(false)
-                                                                            window.location.reload(
-                                                                                true
-                                                                            )
-                                                                        },
-                                                                        onError: handleTxError,
-                                                                    })
-                                                                },
-                                                                onError: handleTxError,
-                                                            })
+                                                                    onError: handleTxError,
+                                                                }
+                                                            )
                                                             break Y
                                                     }
                                                     break

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 
-import { useRetrieveLpKind } from "../../hooks/lp/api"
+import { useRetrieveLpKind } from "../../hooks/lp.js"
 import LiquidityBox from "../web3/liquidity/LiquidityBox"
 
 export default function Liquidity({ lpPositions, tokenMapping }) {

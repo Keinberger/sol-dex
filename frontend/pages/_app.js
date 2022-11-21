@@ -1,5 +1,5 @@
 import "../styles/globals.css"
-import { MoralisProvider } from "react-moralis"
+import { ThirdwebProvider, ChainId, useSDK } from "@thirdweb-dev/react"
 import { NotificationProvider } from "@web3uikit/core"
 import { ApolloProvider, ApolloClient, InMemoryCache } from "@apollo/client"
 import { CookiesProvider } from "react-cookie"
@@ -12,17 +12,19 @@ const client = new ApolloClient({
 function DEX({ Component, pageProps }) {
     return (
         <CookiesProvider>
-            <MoralisProvider
-                // initializeOnMount={false}
-                appId={process.env.NEXT_PUBLIC_MORALIS_APP_ID}
-                serverUrl={process.env.NEXT_PUBLIC_MORALIS_SERVER_URL}
+            <ThirdwebProvider
+                desiredChainId={ChainId.Polygon}
+                chainRpc={{
+                    [ChainId.Polygon]: process.env.NEXT_PUBLIC_POLYGON_RPC_URL,
+                }}
+                supportedChains={[ChainId.Polygon]}
             >
                 <ApolloProvider client={client}>
                     <NotificationProvider>
                         <Component {...pageProps} />
                     </NotificationProvider>
                 </ApolloProvider>
-            </MoralisProvider>
+            </ThirdwebProvider>
         </CookiesProvider>
     )
 }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { ShareIcon } from "@heroicons/react/24/outline"
 
-import { ConnectButton } from "@web3uikit/web3"
+import { ConnectWallet } from "@thirdweb-dev/react"
 import { useNotification } from "@web3uikit/core"
 import { useCookies } from "react-cookie"
 import { tallyUrl } from "../constants/config"
@@ -35,13 +35,11 @@ export default function NavBar(props) {
         <section>
             <nav className="relative container mx-auto py-6">
                 <div className="flex items-center justify-between mx-auto pt-5">
-                    {/* <div></div> */}
-
                     <div className="hidden lg:flex lg:scale-100 space-x-4 mx-auto text-base bg-black py-1 px-1 rounded-xl border-gray-900 drop-shadow-xl">
                         {props.items.map((item, index) => (
                             <button
                                 className={`${
-                                    index == props.activeItem ? "bg-neutral-900" : ""
+                                    index == props.activeItem && "bg-neutral-900"
                                 } menuButton`}
                                 onClick={() => {
                                     props.contentFunc(index)
@@ -62,15 +60,12 @@ export default function NavBar(props) {
                     </div>
 
                     <div className="block">
-                        <ConnectButton
-                            moralisAuth={false}
-                            className="shadow-xl border rounded-xl"
-                        />
+                        <ConnectWallet className="shadow-xl border rounded-xl" />
                     </div>
 
                     <button
                         className={`${
-                            switcherClicked ? "open" : ""
+                            switcherClicked && "open"
                         } hamburger px-5 mt-2 lg:hidden focus:outline-none`}
                         onClick={() => {
                             setSwitcherClicked(!switcherClicked)
@@ -83,11 +78,11 @@ export default function NavBar(props) {
                 </div>
 
                 <div className="lg:hidden">
-                    <div className={`${switcherClicked ? "active" : ""} dropdown`}>
+                    <div className={`${switcherClicked && "active"} dropdown`}>
                         {props.items.map((item, index) => (
                             <button
                                 className={`${
-                                    index == props.activeItem ? "bg-neutral-900" : ""
+                                    index == props.activeItem && "bg-neutral-900"
                                 } menuButton`}
                                 onClick={() => {
                                     props.contentFunc(index)
@@ -99,7 +94,7 @@ export default function NavBar(props) {
                                 {item}
                             </button>
                         ))}
-                        <a href={""} target="_blank">
+                        <a href={tallyUrl} target="_blank">
                             <button className={`items-center flex menuButton`}>
                                 Governance
                                 <ShareIcon className="w-4 ml-1" />

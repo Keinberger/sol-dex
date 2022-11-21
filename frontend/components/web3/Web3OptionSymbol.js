@@ -1,5 +1,5 @@
 import config from "../../constants/config"
-import { useRetrieveTokenSymbol } from "../../hooks/erc20/web3"
+import { useRetrieveTokenSymbol } from "../../hooks/erc20.js"
 
 export default function Web3OptionSymbol({ address }) {
     const symbol =

@@ -1,20 +1,16 @@
 import { useState, useEffect } from "react"
 import { useCookies } from "react-cookie"
-import { useMoralis } from "react-moralis"
 import { ethers } from "ethers"
 import { IoIosCloseCircleOutline } from "react-icons/io"
 
-import Web3OptionSymbol from "../Web3OptionSymbol"
-import { useApprove } from "../../../hooks/erc20/web3"
-import { useProvideLiquidity as useProvideLiquidityNLP } from "../../../hooks/nlp/web3"
-import { useProvideLiquidity as useProvideLiquidityTLP } from "../../../hooks/tlp/web3"
-import { useRetrieveNativeBalance } from "../../../hooks/native/api"
-// import {useRetrieveTokenBalance} from "../../../hooks/erc20/api"
+import OptionSymbol from "../OptionSymbol"
+import { useApprove } from "../../../hooks/erc20.js"
+import { getContract as getNLPContract } from "../../../hooks/nlp"
+import { useProvideLiquidity as useProvideLiquidityTLP } from "../../../hooks/tlp.js"
 import config from "../../../constants/config"
-import { trimNumber } from "../../../helpers/helpers"
+import { trimNumber, convertToWei } from "../../../helpers/helpers"
 
 export default function NewPosition({ isVisible, hide, tokenMapping }) {
-    const { account } = useMoralis()
     const [cookies, setCookie] = useCookies(["latestMessage"])
     const [sendingTx, setSendingTx] = useState(false)
     const [firstAmount, setFirstAmount] = useState("")
@@ -23,15 +19,14 @@ export default function NewPosition({ isVisible, hide, tokenMapping }) {
     const [secondTokenSelected, setSecondTokenSelected] = useState("")
     const [changedAmount, setChangedAmount] = useState(false)
 
-    const currentLpAddress =
+    const currentLpConfig =
         tokenMapping.get(firstTokenSelected) != undefined &&
         tokenMapping.get(firstTokenSelected).tokens.get(secondTokenSelected) != undefined &&
-        tokenMapping.get(firstTokenSelected).tokens.get(secondTokenSelected).lpAddress
-    const currentDirection =
-        tokenMapping.get(firstTokenSelected) != undefined &&
-        tokenMapping.get(firstTokenSelected).tokens.get(secondTokenSelected) != undefined
-            ? tokenMapping.get(firstTokenSelected).tokens.get(secondTokenSelected).direction
-            : 0
+        tokenMapping.get(firstTokenSelected).tokens.get(secondTokenSelected)
+
+    const currentLpAddress = currentLpConfig.lpAddress
+    const currentDirection = currentLpConfig.direction
+
     const currentLpKind =
         firstTokenSelected == config.nativeCurrencySymbol ||
         secondTokenSelected == config.nativeCurrencySymbol
@@ -40,17 +35,18 @@ export default function NewPosition({ isVisible, hide, tokenMapping }) {
     const xToken = currentDirection == 0 ? firstTokenSelected : secondTokenSelected
     const yToken = currentDirection == 0 ? secondTokenSelected : firstTokenSelected
     const xAmount =
-        currentDirection == 0 ? Number(firstAmount).toString() : Number(secondAmount).toString()
+        currentDirection == 0
+            ? convertToWei(Number(firstAmount).toString())
+            : convertToWei(Number(secondAmount).toString())
     const yAmount =
-        currentDirection == 0 ? Number(secondAmount).toString() : Number(firstAmount).toString()
+        currentDirection == 0
+            ? convertToWei(Number(secondAmount).toString())
+            : convertToWei(Number(firstAmount).toString())
 
-    const xNativeBalance = useRetrieveNativeBalance(account)
-    // const xTokenBalance = useRetrieveTokenBalance(account)
-
-    const sendApproveX = useApprove(xToken, currentLpAddress, xAmount)
-    const sendApproveY = useApprove(yToken, currentLpAddress, yAmount)
-    const sendProvideLiquidityNLP = useProvideLiquidityNLP(currentLpAddress, xAmount)
-    const sendProvideLiquidityTLP = useProvideLiquidityTLP(currentLpAddress, xAmount)
+    const sendApproveX = useApprove(xToken)
+    const sendApproveY = useApprove(yToken)
+    const nlpContract = getNLPContract(currentLpAddress)
+    const sendProvideLiquidityTLP = useProvideLiquidityTLP(currentLpAddress)
 
     const firstTokens = [...tokenMapping.keys()]
     const secondTokens = tokenMapping.has(firstTokenSelected)
@@ -128,11 +124,8 @@ export default function NewPosition({ isVisible, hide, tokenMapping }) {
         setFirstAmount(setAmount)
     }, [secondAmount, secondTokenSelected])
 
-    const handleTxError = (e) => {
+    const handleTxError = () => {
         setSendingTx(false)
-        if (e.code == 4001) return
-
-        console.error(e)
         setCookie("latestMessage", config.tx.error)
     }
 
@@ -186,7 +179,7 @@ export default function NewPosition({ isVisible, hide, tokenMapping }) {
                                     defaultValue={firstTokenSelected}
                                 >
                                     {firstTokens.map((token, index) => (
-                                        <Web3OptionSymbol address={token} key={index} />
+                                        <OptionSymbol address={token} key={index} />
                                     ))}
                                 </select>
                             </div>
@@ -201,7 +194,7 @@ export default function NewPosition({ isVisible, hide, tokenMapping }) {
                                     defaultValue={secondTokenSelected}
                                 >
                                     {secondTokens.map((token, index) => (
-                                        <Web3OptionSymbol address={token} key={index} />
+                                        <OptionSymbol address={token} key={index} />
                                     ))}
                                 </select>
                             </div>
@@ -221,7 +214,7 @@ export default function NewPosition({ isVisible, hide, tokenMapping }) {
                                     disabled
                                 >
                                     {firstTokens.map((token, index) => (
-                                        <Web3OptionSymbol address={token} key={index} />
+                                        <OptionSymbol address={token} key={index} />
                                     ))}
                                 </select>
                                 <input
@@ -244,7 +237,7 @@ export default function NewPosition({ isVisible, hide, tokenMapping }) {
                                     disabled
                                 >
                                     {secondTokens.map((token, index) => (
-                                        <Web3OptionSymbol address={token} key={index} />
+                                        <OptionSymbol address={token} key={index} />
                                     ))}
                                 </select>
                                 <input
@@ -274,88 +267,48 @@ export default function NewPosition({ isVisible, hide, tokenMapping }) {
                             onClick={async () => {
                                 switch (currentLpKind) {
                                     case 0:
-                                        const formattedNativeBalance =
-                                            ethers.utils.formatEther(xNativeBalance)
-                                        if (formattedNativeBalance < xAmount) {
-                                            setCookie("latestMessage", {
-                                                text:
-                                                    "Not enough " +
-                                                    config.nativeCurrencySymbol +
-                                                    " to complete transation",
-                                                kind: "error",
-                                            })
-                                            break
-                                        }
-
                                         setSendingTx(true)
-                                        await sendApproveY({
-                                            onComplete: () => {},
-                                            onSuccess: async (approveTx) => {
-                                                setCookie("latestMessage", config.tx.posted)
-                                                await approveTx.wait(config.tx.confirmations)
-
-                                                // send provideLiquidity
-                                                await sendProvideLiquidityNLP({
-                                                    onComplete: () => {},
-                                                    onSuccess: async (provideTx) => {
-                                                        await provideTx.wait(
-                                                            config.tx.confirmations
-                                                        )
-
-                                                        handleTxSuccess(provideTx)
-                                                        setSendingTx(false)
-
-                                                        window.location.reload(true)
-                                                    },
-                                                    onError: handleTxError,
-                                                })
+                                        sendApproveY([currentLpAddress, yAmount], {
+                                            onSuccess: async () => {
+                                                try {
+                                                    const tx = await nlpContract.call(
+                                                        "provideLiquidity",
+                                                        {
+                                                            value: xAmount,
+                                                        }
+                                                    )
+                                                    const receipt = tx.receipt
+                                                    handleTxSuccess(receipt)
+                                                    window.location.reload()
+                                                } catch {
+                                                    handleTxError()
+                                                }
                                             },
                                             onError: handleTxError,
                                         })
-
                                         break
                                     case 1:
                                         setSendingTx(true)
-                                        await sendApproveX({
-                                            onComplete: () => {},
-                                            onSuccess: async (approveXTx) => {
-                                                setCookie("latestMessage", config.tx.posted)
-                                                await approveXTx.wait(config.tx.confirmations)
-
-                                                // send approve Y
-                                                await sendApproveY({
-                                                    onComplete: () => {},
-                                                    onSuccess: async (approveYTx) => {
-                                                        setCookie("latestMessage", config.tx.posted)
-                                                        await approveYTx.wait(
-                                                            config.tx.confirmations
+                                        sendApproveX([currentLpAddress, xAmount], {
+                                            onSuccess: () => {
+                                                sendApproveY([currentLpAddress, yAmount], {
+                                                    onSuccess: () => {
+                                                        sendProvideLiquidityTLP(
+                                                            [currentLpAddress, xAmount],
+                                                            {
+                                                                onSucess: (data) => {
+                                                                    handleTxSuccess(data)
+                                                                    window.location.reload()
+                                                                },
+                                                                onError: handleTxError,
+                                                            }
                                                         )
-
-                                                        // send provide Liquidity
-                                                        await sendProvideLiquidityTLP({
-                                                            onComplete: () => {},
-                                                            onSuccess: async (provideTx) => {
-                                                                setCookie(
-                                                                    "latestMessage",
-                                                                    config.tx.posted
-                                                                )
-                                                                await provideTx.wait(
-                                                                    config.tx.confirmations
-                                                                )
-
-                                                                handleTxSuccess(provideTx)
-                                                                setSendingTx(false)
-                                                                window.location.reload(true)
-                                                            },
-                                                            onError: handleTxError,
-                                                        })
                                                     },
                                                     onError: handleTxError,
                                                 })
                                             },
                                             onError: handleTxError,
                                         })
-
                                         break
                                 }
                             }}
