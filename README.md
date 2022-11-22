@@ -110,7 +110,7 @@ This project was built using multiple technologies, the most notable ones being 
 - [Hardhat](https://hardhat.org/)
 - [NextJS](https://nextjs.org/)
 - [TheGraph](https://thegraph.com/)
-- [Moralis](https://moralis.io/)
+- [Thirdweb](https://thirdweb.com/sdk)
 - [Ethers](https://ethers.io/)
 - [Waffle](https://getwaffle.io/)
 - [OpenZeppelin-Contracts](https://openzeppelin.com/contracts)
